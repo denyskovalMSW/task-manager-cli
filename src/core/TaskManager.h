@@ -4,10 +4,12 @@
 #include <vector>
 #include <optional>
 #include <algorithm>
+#include "CommandParser.h"
 
 class TaskManager {
 private:
     std::vector<Task> tasks;
+    CommandParser parser;
 
 public:
     void addTask(const Task& task);
@@ -22,5 +24,7 @@ public:
     std::vector<Task> findTasksByKeyword(const std::string& keyword) const;
     std::vector<Task> filterTasksByTag(const std::string& tag) const;
 
+    const Task& getTaskByIndex(size_t index) const;
+    Task& getTaskByIndex(size_t index);
     size_t getTaskCount() const;
 };

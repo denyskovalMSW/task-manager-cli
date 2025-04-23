@@ -1,4 +1,5 @@
 #include "TaskManager.h"
+#include <iostream>;
 
 void TaskManager::addTask(const Task& task) {
     tasks.push_back(task);
@@ -37,10 +38,14 @@ std::vector<Task> TaskManager::getTasksSortedByPriority() const {
 }
 
 std::vector<Task> TaskManager::findTasksByKeyword(const std::string& keyword) const {
+    std::string loweredKeyword = parser.parse(keyword);
     std::vector<Task> result;
     for (const auto& task : tasks) {
-        if (task.getTitle().find(keyword) != std::string::npos ||
-            task.getDescription().find(keyword) != std::string::npos) {
+        std::string loweredTitle = parser.toLower(task.getTitle());
+        std::string loweredDesc = parser.toLower(task.getDescription());
+
+        if (loweredTitle.find(loweredKeyword) != std::string::npos ||
+            loweredDesc.find(loweredKeyword) != std::string::npos) {
             result.push_back(task);
         }
     }
@@ -48,13 +53,33 @@ std::vector<Task> TaskManager::findTasksByKeyword(const std::string& keyword) co
 }
 
 std::vector<Task> TaskManager::filterTasksByTag(const std::string& tag) const {
+    std::string loweredTag = parser.parse(tag);
     std::vector<Task> result;
+
     for (const auto& task : tasks) {
-        if (task.getTag() == tag) {
+        if (parser.toLower(task.getTag()) == loweredTag) {
             result.push_back(task);
         }
     }
     return result;
+}
+
+const Task& TaskManager::getTaskByIndex(size_t index) const {
+    if (index >= getTaskCount() || index < 0) {
+        std::cout << "Invalid task index.\n";
+    }
+    else {
+        return tasks[index];
+    }
+}
+
+Task& TaskManager::getTaskByIndex(size_t index) {
+    if (index >= getTaskCount() || index < 0) {
+        std::cout << "Invalid task index.\n";
+    }
+    else {
+        return tasks[index];
+    }
 }
 
 size_t TaskManager::getTaskCount() const {

@@ -12,15 +12,20 @@ public:
         const std::string& description,
         const std::chrono::system_clock::time_point& deadline,
         Priority priority,
-        const std::string& tag = "");
+        const std::string& tag = "",
+        bool status = false);
 
 
     // Геттери
     std::string getTitle() const;
+    void setTitle(std::string titl);
     std::string getDescription() const;
     std::chrono::system_clock::time_point getDeadline() const;
+    void setDeadline(std::chrono::system_clock::time_point& deadline);
     Priority getPriority() const;
     std::string getTag() const;
+    bool getCompleted() const;
+    void setCompleted(bool status);
 
     // Принт для дебагу / перегляду
     void print() const;
@@ -34,4 +39,5 @@ private:
     std::chrono::system_clock::time_point deadline_;
     Priority priority_;
     std::string tag_;
+    bool completed_ = false;
 };

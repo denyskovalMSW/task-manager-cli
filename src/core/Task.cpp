@@ -1,4 +1,4 @@
-#include "Task.h"
+﻿#include "Task.h"
 #include <iostream>
 #include <iomanip>
 #include <ctime>
@@ -10,13 +10,18 @@ Task::Task(const std::string& title,
     const std::string& description,
     const std::chrono::system_clock::time_point& deadline,
     Priority priority,
-    const std::string& tag)
+    const std::string& tag,
+    bool status)
     : title_(title), description_(description), deadline_(deadline),
-    priority_(priority), tag_(tag) {
+    priority_(priority), tag_(tag), completed_(status){
 }
 
 std::string Task::getTitle() const {
     return title_;
+}
+
+void Task::setTitle(std::string titl) {
+    title_ = titl;
 }
 
 std::string Task::getDescription() const {
@@ -27,6 +32,10 @@ std::chrono::system_clock::time_point Task::getDeadline() const {
     return deadline_;
 }
 
+void Task::setDeadline(std::chrono::system_clock::time_point& deadline) {
+    deadline_ = deadline;
+}
+
 Priority Task::getPriority() const {
     return priority_;
 }
@@ -35,10 +44,24 @@ std::string Task::getTag() const {
     return tag_;
 }
 
+bool Task::getCompleted() const {
+    return completed_;
+}
+
+void Task::setCompleted(bool status_) {
+    completed_ = status_;
+}
+
 void Task::print() const {
     std::time_t deadline_time = std::chrono::system_clock::to_time_t(deadline_);
     std::tm* tm_ptr = std::localtime(&deadline_time);
+    // якщо активний DST (літній час), то віднімаємо годину
+    if (tm_ptr->tm_isdst > 0) {
+        deadline_time -= 3600;  // мінус одна година
+        tm_ptr = std::localtime(&deadline_time);
+    }
 
+    std::cout << (completed_ ? "[+] " : "[ ] ");
     std::cout << "Title: " << title_ << '\n'
         << "Description: " << description_ << '\n'
         << "Deadline: " << std::put_time(tm_ptr, "%Y-%m-%d %H:%M") << '\n'
@@ -59,7 +82,8 @@ void to_json(json& j, const Task& task) {
         {"description", task.description_},
         {"deadline", DateTimeUtils::timePointToString(task.deadline_)},
         {"priority", static_cast<int>(task.priority_)},
-        {"tag", task.tag_}
+        {"tag", task.tag_},
+        {"completed", task.completed_}
     };
 }
 
@@ -69,4 +93,5 @@ void from_json(const json& j, Task& task) {
     task.deadline_ = DateTimeUtils::stringToTimePoint(j.at("deadline").get<std::string>());
     task.priority_ = static_cast<Priority>(j.at("priority").get<int>());
     task.tag_ = j.at("tag").get<std::string>();
+    task.completed_ = j.at("completed").get<bool>();
 }
