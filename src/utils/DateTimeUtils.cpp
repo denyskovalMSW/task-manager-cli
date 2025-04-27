@@ -7,9 +7,18 @@
 namespace DateTimeUtils {
     std::string timePointToString(const std::chrono::system_clock::time_point& timePoint) {
         std::time_t time = std::chrono::system_clock::to_time_t(timePoint);
-        std::tm tm = *std::localtime(&time);
+        std::tm* tm_ptr = std::localtime(&time);
+
+        // якщо активний DST (літній час), то віднімаємо годину
+        if (tm_ptr && tm_ptr->tm_isdst > 0) {
+            time -= 3600;  // мінус одна година
+            tm_ptr = std::localtime(&time);
+        }
+
         std::ostringstream oss;
-        oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+        if (tm_ptr) {
+            oss << std::put_time(tm_ptr, "%Y-%m-%d %H:%M:%S");
+        }
         return oss.str();
     }
 
@@ -47,5 +56,9 @@ namespace DateTimeUtils {
         local_tm.tm_min = 59;
         local_tm.tm_sec = 59;
         return std::chrono::system_clock::from_time_t(std::mktime(&local_tm));
+    }
+
+    std::string DateTimeUtils::getCurrnetTime() {
+        return DateTimeUtils::timePointToString(std::chrono::system_clock::now());
     }
 }

@@ -1,6 +1,6 @@
 ﻿#include "UI.h"
 #include "DateTimeUtils.h"
-
+#include "ActivityTracker.h"
 #include <iostream>
 #include <string>
 #include <limits>
@@ -12,18 +12,22 @@ Task UI::promptForTask() {
 
     std::cout << "Enter task title: ";
     std::getline(std::cin, title);
+    ActivityTracker::updateActivityTime();
 
     std::cout << "Enter task description: ";
     std::getline(std::cin, description);
+    ActivityTracker::updateActivityTime();
 
     auto deadline = promptForDeadline();
 
     std::cout << "Enter priority (0 = Low, 1 = Medium, 2 = High): ";
     std::cin >> priorityInt;
+    ActivityTracker::updateActivityTime();
     std::cin.ignore(); // очищення буфера
 
     std::cout << "Enter task tag: ";
     std::getline(std::cin, tag);
+    ActivityTracker::updateActivityTime();
 
     bool completed = promptForCompletionStatus();
 
@@ -35,6 +39,7 @@ std::chrono::system_clock::time_point UI::promptForDeadline() {
         std::string deadlineStr;
         std::cout << "Enter deadline (YYYY-MM-DD HH:MM): ";
         std::getline(std::cin, deadlineStr);
+        ActivityTracker::updateActivityTime();
 
         try {
             return DateTimeUtils::stringToTimePoint(deadlineStr);
@@ -50,6 +55,7 @@ bool UI::promptForCompletionStatus() {
     while (true) {
         std::cout << "Is the task completed? (yes/no): ";
         std::getline(std::cin, status);
+        ActivityTracker::updateActivityTime();
 
         std::transform(status.begin(), status.end(), status.begin(), ::tolower);
 

@@ -1,5 +1,6 @@
 #include "TaskManager.h"
 #include <iostream>;
+#include <chrono>
 
 void TaskManager::addTask(const Task& task) {
     tasks.push_back(task);
@@ -82,6 +83,102 @@ Task& TaskManager::getTaskByIndex(size_t index) {
     }
 }
 
+void TaskManager::showUpcomingDeadlines(bool reminder) {
+    using namespace std::chrono;
+    std::vector<Task> result;
+    auto now = system_clock::now();
+    auto soon = now + hours(48);
+
+    bool found = false;
+    size_t index = 0;
+    for (const auto& task : getAllTasks()) {
+        auto deadline = task.getDeadline();
+        if (deadline >= now && deadline <= soon && task.getCompleted() == false) {
+            if (found == false && reminder == true) {
+                std::cout << "\n[Reminder] Upcoming tasks:\n";
+                found = true;
+            }
+            std::cout << "[" << index << "] ";
+            task.print();
+            std::cout << "-----------------------------\n";
+        }
+        index++;
+    }
+}
+
+void TaskManager::showOverduedDeadlines(bool reminder) {
+    auto now = std::chrono::system_clock::now();
+    bool found = false;
+    size_t index = 0;
+    for (const auto& task : getAllTasks()) {
+        if (task.getDeadline() < now && !task.getCompleted()) {  // Перевіряємо, що задача прострочена і не виконана
+            if (found == false && reminder == true) {
+                std::cout << "\n[Reminder] Overdued tasks:\n";
+                found = true;
+            }
+            std::cout << "[" << index << "] ";
+            task.print();
+            std::cout << "-----------------------------\n";
+        }
+        index++;
+    }
+
+    if (reminder && found) std::cout << ">";
+}
+
+int TaskManager::countUpcomingDeadlines() {
+    using namespace std::chrono;
+    auto now = system_clock::now();
+    auto soon = now + hours(48);
+
+    size_t count= 0;
+    for (const auto& task : getAllTasks()) {
+        auto deadline = task.getDeadline();
+        if (deadline >= now && deadline <= soon && task.getCompleted() == false) {
+            count++;
+        }
+    }
+
+    return count;
+}
+int TaskManager::countOverduedDeadlines() {
+    auto now = std::chrono::system_clock::now();
+    size_t count = 0;
+    for (const auto& task : getAllTasks()) {
+        if (task.getDeadline() < now && !task.getCompleted()) {  // Перевіряємо, що задача прострочена і не виконана
+            count++;
+        }
+    }
+
+    return count;
+}
+
 size_t TaskManager::getTaskCount() const {
     return tasks.size();
+}
+
+void TaskManager::clearTasks() {
+    tasks.clear();
+}
+
+void TaskManager::saveTasks(const std::string& filename) {
+    try {
+        storage.saveToFile(filename, getAllTasks());
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error saving tasks: " << e.what() << '\n';
+    }
+}
+
+void TaskManager::loadTasks(const std::string& filename) {
+    try {
+        clearTasks();
+        auto tasks = storage.loadFromFile(filename);
+        for (const auto& task : tasks) {
+            addTask(task);
+        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error loading tasks: " << e.what() << '\n';
+    }
 }

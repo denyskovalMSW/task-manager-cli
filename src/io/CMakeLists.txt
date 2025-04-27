@@ -1,4 +1,4 @@
-add_library(io FileManager.cpp HtmlExplorer.cpp JsonStorage.cpp)
+add_library(io JsonStorage.cpp)
 target_include_directories(io PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Залежність від core, бо JsonStorage використовує Task
