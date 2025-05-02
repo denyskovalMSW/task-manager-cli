@@ -8,4 +8,6 @@ public:
     static Task promptForTask();
     static std::chrono::system_clock::time_point promptForDeadline();
     static bool promptForCompletionStatus();
+    static int promptForPriority();
+    static std::string promptForTitle();
 };

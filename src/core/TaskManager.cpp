@@ -2,16 +2,20 @@
 #include <iostream>;
 #include <chrono>
 
+// Manages a collection of tasks: CRUD operations, filtering, and storage
+
 void TaskManager::addTask(const Task& task) {
     tasks.push_back(task);
 }
 
+// Removes a task by index; returns false if index is invalid
 bool TaskManager::removeTask(size_t index) {
     if (index >= tasks.size()) return false;
     tasks.erase(tasks.begin() + index);
     return true;
 }
 
+// Replaces a task at given index with a new one; returns false if index is invalid
 bool TaskManager::editTask(size_t index, const Task& newTask) {
     if (index >= tasks.size()) return false;
     tasks[index] = newTask;
@@ -22,6 +26,8 @@ const std::vector<Task>& TaskManager::getAllTasks() const {
     return tasks;
 }
 
+
+// Returns tasks sorted by deadline (soonest first)
 std::vector<Task> TaskManager::getTasksSortedByDeadline() const {
     std::vector<Task> sorted = tasks;
     std::sort(sorted.begin(), sorted.end(), [](const Task& a, const Task& b) {
@@ -30,6 +36,7 @@ std::vector<Task> TaskManager::getTasksSortedByDeadline() const {
     return sorted;
 }
 
+// Returns tasks sorted by priority (high to low)
 std::vector<Task> TaskManager::getTasksSortedByPriority() const {
     std::vector<Task> sorted = tasks;
     std::sort(sorted.begin(), sorted.end(), [](const Task& a, const Task& b) {
@@ -38,6 +45,7 @@ std::vector<Task> TaskManager::getTasksSortedByPriority() const {
     return sorted;
 }
 
+// Searches tasks by keyword in title or description (case-insensitive)
 std::vector<Task> TaskManager::findTasksByKeyword(const std::string& keyword) const {
     std::string loweredKeyword = parser.parse(keyword);
     std::vector<Task> result;
@@ -53,6 +61,7 @@ std::vector<Task> TaskManager::findTasksByKeyword(const std::string& keyword) co
     return result;
 }
 
+// Returns tasks matching a specific tag (case-insensitive)
 std::vector<Task> TaskManager::filterTasksByTag(const std::string& tag) const {
     std::string loweredTag = parser.parse(tag);
     std::vector<Task> result;
@@ -65,6 +74,8 @@ std::vector<Task> TaskManager::filterTasksByTag(const std::string& tag) const {
     return result;
 }
 
+
+// Returns task by index (const). Displays error if index is invalid
 const Task& TaskManager::getTaskByIndex(size_t index) const {
     if (index >= getTaskCount() || index < 0) {
         std::cout << "Invalid task index.\n";
@@ -74,6 +85,7 @@ const Task& TaskManager::getTaskByIndex(size_t index) const {
     }
 }
 
+// Returns task by index (mutable). Displays error if index is invalid
 Task& TaskManager::getTaskByIndex(size_t index) {
     if (index >= getTaskCount() || index < 0) {
         std::cout << "Invalid task index.\n";
@@ -83,6 +95,7 @@ Task& TaskManager::getTaskByIndex(size_t index) {
     }
 }
 
+// Displays tasks with deadlines within 48 hours (if incomplete)
 void TaskManager::showUpcomingDeadlines(bool reminder) {
     using namespace std::chrono;
     std::vector<Task> result;
@@ -106,12 +119,14 @@ void TaskManager::showUpcomingDeadlines(bool reminder) {
     }
 }
 
+
+// Displays overdue tasks (if incomplete)
 void TaskManager::showOverduedDeadlines(bool reminder) {
     auto now = std::chrono::system_clock::now();
     bool found = false;
     size_t index = 0;
     for (const auto& task : getAllTasks()) {
-        if (task.getDeadline() < now && !task.getCompleted()) {  // Перевіряємо, що задача прострочена і не виконана
+        if (task.getDeadline() < now && !task.getCompleted()) { 
             if (found == false && reminder == true) {
                 std::cout << "\n[Reminder] Overdued tasks:\n";
                 found = true;
@@ -126,6 +141,7 @@ void TaskManager::showOverduedDeadlines(bool reminder) {
     if (reminder && found) std::cout << ">";
 }
 
+// Counts upcoming tasks within 48 hours (incomplete)
 int TaskManager::countUpcomingDeadlines() {
     using namespace std::chrono;
     auto now = system_clock::now();
@@ -161,6 +177,7 @@ void TaskManager::clearTasks() {
     tasks.clear();
 }
 
+// Saves all tasks to file using Json storage backend
 void TaskManager::saveTasks(const std::string& filename) {
     try {
         storage.saveToFile(filename, getAllTasks());
@@ -170,6 +187,7 @@ void TaskManager::saveTasks(const std::string& filename) {
     }
 }
 
+// Loads tasks from file using Json storage backend
 void TaskManager::loadTasks(const std::string& filename) {
     try {
         clearTasks();

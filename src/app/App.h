@@ -6,6 +6,7 @@
 #include "ReminderService.h"
 #include "HintService.h"
 #include "LoggerService.h"
+#include "AutoSaveService.h"
 
 class App {
 public:
@@ -19,6 +20,7 @@ private:
     std::unique_ptr<ReminderService> reminderService;
     std::unique_ptr<HintService> hintService;
     std::unique_ptr<LoggerService> loggerService;
+    std::unique_ptr<AutoSaveService> autoSaveService;
 
     void showUpcomingDeadlines();
     void showTasksForToday();

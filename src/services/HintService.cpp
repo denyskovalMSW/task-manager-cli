@@ -18,16 +18,16 @@ void HintService::start() {
 
 void HintService::stop() {
     if (!running) return;
-    running = false;
-    cv.notify_all();
+    running = false; 
+    cv.notify_all();// Unblocks thread if it's waiting
     if (worker.joinable()) {
         worker.join();
     }
 }
 
 void HintService::run() {
-    const auto checkInterval = std::chrono::seconds(30); // Перевірка раз на 30 сек
-    const auto inactivityThreshold = std::chrono::minutes(2); // Вважаємо бездіяльністю 2 хвилини
+    const auto checkInterval = std::chrono::seconds(30); // Check every 30 seconds
+    const auto inactivityThreshold = std::chrono::minutes(2); // Consider 2 mins as inactivity
 
     while (running) {
         {
@@ -37,16 +37,16 @@ void HintService::run() {
             }
         }
 
-        auto lastActivity = ActivityTracker::getLastActivityTime();
+        auto lastActivity = ActivityTracker::getLastActivityTime(); // Cross-thread singleton access
         auto now = std::chrono::system_clock::now();
         auto inactivityDuration = std::chrono::duration_cast<std::chrono::minutes>(now - lastActivity);
 
         if (inactivityDuration >= inactivityThreshold) {
-            // Бездіяльність виявлена - показуємо підказки
+            // User inactive for a while — provide contextual hints
             {
-                std::lock_guard<std::mutex> lock(consoleMutex);
+                std::lock_guard<std::mutex> lock(consoleMutex); // Sync with other console output
                 int overdue = taskManager->countOverduedDeadlines();
-                int upcoming = taskManager->countUpcomingDeadlines(); // наступні 48 годин
+                int upcoming = taskManager->countUpcomingDeadlines(); // Due within 48 hours
 
                 std::cout << "\n[Hint]: ";
                 if (overdue > 0) {
@@ -58,9 +58,8 @@ void HintService::run() {
                 if (overdue == 0 && upcoming == 0) {
                     std::cout << "You are doing great! ✅";
                 }
-                // Мотиваційні підказки
-                displayRandomMotivationalHint();
-                std::cout << "\nType 'help' to see available commands.\n\n";
+                displayRandomMotivationalHint(); // Random extra encouragement
+                std::cout << "\nType 'help' to see available commands.\n\n>";
 
             }
         }
@@ -68,7 +67,7 @@ void HintService::run() {
 }
 
 void HintService::displayRandomMotivationalHint() {
-    // Вектор мотиваційних підказок
+    // Pool of motivational messages
     std::vector<std::string> hints = {
         "Remember, consistency is key! Keep going! 💪",
         "Stay focused and you'll reach your goals! 🌟",
@@ -78,11 +77,10 @@ void HintService::displayRandomMotivationalHint() {
         "Small steps lead to big results! 👣"
     };
 
-    // Вибір випадкової підказки
+    // Pseudo-random selection using Mersenne Twister
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, hints.size() - 1);
 
-    // Виводимо випадкову підказку
     std::cout << "\n" << hints[dis(gen)] << "\n";
 }

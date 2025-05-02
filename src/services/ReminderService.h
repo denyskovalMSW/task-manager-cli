@@ -14,6 +14,8 @@ public:
     void start();
     void stop();
 
+    bool isRunning() const;
+
 private:
     void run();
 

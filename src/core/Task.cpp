@@ -6,6 +6,8 @@
 
 using json = nlohmann::json;
 
+// Represents a task with title, description, deadline, priority, tag, and completion status
+
 Task::Task(const std::string& title,
     const std::string& description,
     const std::chrono::system_clock::time_point& deadline,
@@ -16,6 +18,7 @@ Task::Task(const std::string& title,
     priority_(priority), tag_(tag), completed_(status){
 }
 
+// Accessors and mutators
 std::string Task::getTitle() const {
     return title_;
 }
@@ -52,12 +55,13 @@ void Task::setCompleted(bool status_) {
     completed_ = status_;
 }
 
+// Prints task details to the console
 void Task::print() const {
     std::time_t deadline_time = std::chrono::system_clock::to_time_t(deadline_);
     std::tm* tm_ptr = std::localtime(&deadline_time);
-    // якщо активний DST (літній час), то віднімаємо годину
+    // Adjust for DST if needed
     if (tm_ptr->tm_isdst > 0) {
-        deadline_time -= 3600;  // мінус одна година
+        deadline_time -= 3600;
         tm_ptr = std::localtime(&deadline_time);
     }
 
@@ -76,6 +80,7 @@ void Task::print() const {
     std::cout << '\n' << "Tag: " << tag_ << "\n\n";
 }
 
+// Serialize Task to JSON
 void to_json(json& j, const Task& task) {
     j = json{
         {"title", task.title_},
@@ -87,6 +92,7 @@ void to_json(json& j, const Task& task) {
     };
 }
 
+// Deserialize JSON to Task
 void from_json(const json& j, Task& task) {
     task.title_ = j.at("title").get<std::string>();
     task.description_ = j.at("description").get<std::string>();

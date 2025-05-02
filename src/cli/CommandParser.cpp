@@ -3,7 +3,7 @@
 #include <cctype>
 #include <sstream>
 
-// Допоміжна функція для обрізання пробілів
+// Func for delete spaces
 static std::string trim(const std::string& str) {
     size_t start = str.find_first_not_of(" \t\n\r");
     size_t end = str.find_last_not_of(" \t\n\r");
@@ -11,7 +11,7 @@ static std::string trim(const std::string& str) {
     return (start == std::string::npos) ? "" : str.substr(start, end - start + 1);
 }
 
-// Переводить рядок до нижнього регістру
+// Func for lower register
 std::string CommandParser::toLower(const std::string& str) const{
     std::string result = str;
     std::transform(result.begin(), result.end(), result.begin(),

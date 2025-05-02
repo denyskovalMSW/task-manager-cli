@@ -28,7 +28,7 @@ void LoggerService::stop() {
         std::lock_guard<std::mutex> lock(mutex);
         running = false;
     }
-    condVar.notify_one();
+    condVar.notify_one(); // Wake thread in case it's waiting with empty queue
     if (worker.joinable()) {
         worker.join();
     }
@@ -37,9 +37,9 @@ void LoggerService::stop() {
 void LoggerService::logEvent(const std::string& message) {
     {
         std::lock_guard<std::mutex> lock(mutex);
-        eventQueue.push(LogEvent{ getCurrentTime(), message });
+        eventQueue.push(LogEvent{ getCurrentTime(), message }); // Push event in special log LogEvent format
     }
-    condVar.notify_one();
+    condVar.notify_one(); // Ensure thread is notified even for single event
 }
 
 void LoggerService::processEvents() {
@@ -63,7 +63,7 @@ void LoggerService::processEvents() {
             }
 
             if (!batch.empty()) {
-                json j = batch; // автоматично через to_json
+                json j = batch; // Relies on overloaded to_json for LogEvent
                 outFile << j.dump(4) << std::endl; // pretty print
             }
 
@@ -86,5 +86,5 @@ std::string LoggerService::getCurrentTime() const {
     if (tm_ptr) {
         oss << std::put_time(tm_ptr, "%Y-%m-%d %H:%M:%S");
     }
-    return oss.str();
+    return oss.str(); // Returns empty string if localtime fails Ч rare, but possible
 }
