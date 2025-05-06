@@ -44,7 +44,7 @@ namespace DateTimeUtils {
 
 
     // Returns the beginning of the day (00:00:00) for a given time_point
-    std::chrono::system_clock::time_point DateTimeUtils::startOfDay(std::chrono::system_clock::time_point tp) {
+    std::chrono::system_clock::time_point startOfDay(std::chrono::system_clock::time_point tp) {
         std::time_t tt = std::chrono::system_clock::to_time_t(tp);
         std::tm local_tm = *std::localtime(&tt);
         local_tm.tm_hour = 0;
@@ -54,7 +54,7 @@ namespace DateTimeUtils {
     }
 
     // Returns the end of the day (23:59:59) for a given time_point
-    std::chrono::system_clock::time_point DateTimeUtils::endOfDay(std::chrono::system_clock::time_point tp) {
+    std::chrono::system_clock::time_point endOfDay(std::chrono::system_clock::time_point tp) {
         std::time_t tt = std::chrono::system_clock::to_time_t(tp);
         std::tm local_tm = *std::localtime(&tt);
         local_tm.tm_hour = 23;
@@ -64,7 +64,7 @@ namespace DateTimeUtils {
     }
 
     // Returns the current system time as string
-    std::string DateTimeUtils::getCurrnetTime() {
+    std::string getCurrnetTime() {
         return DateTimeUtils::timePointToString(std::chrono::system_clock::now());
     }
 }
